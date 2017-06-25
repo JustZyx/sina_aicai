@@ -3,6 +3,7 @@ import requests
 import calendar
 from bs4 import BeautifulSoup
 import json
+import MySQLdb
 
 # 是否闰年
 def is_run(year):
@@ -55,13 +56,48 @@ def main():
 
 if __name__ == '__main__':
     # print main();
-    url = 'http://live.aicai.com/jsbf/timelyscore!dynamicBfDataFromPage.htm?lotteryType=zc&issue=20170621';
+    url = 'http://live.aicai.com/jsbf/timelyscore!dynamicBfDataFromPage.htm?lotteryType=zc&issue=20170620';
     r = get_contents(url);
     content = json.loads(r.content);
     content = content['result']['bf_page'];
     soup = BeautifulSoup(content, 'lxml');
-    team = soup.find_all('span', class_ = 'c_yellow');
-    win_volume = soup.find_all('span', class_ = 'c_orange');
-    balance_volume = soup.find_all('span', class_="c_green");
-    fail_volume = soup.find_all('span', class_ = 'c_blue');
-    print team;
+    teams = soup.find_all('span', class_ = 'c_yellow');  #c_yellow队伍双方及比分
+    win_volume = soup.find_all('span', class_ = 'c_orange');  #必发主胜
+    balance_volume = soup.find_all('span', class_="c_green");   #必发主平
+    fail_volume = soup.find_all('span', class_ = 'c_blue');     #必发主负
+    #     for t in team.children[::2]:
+    #         print t.string
+    # for team in teams[1::2]:
+    #     for res in list(team.children)[::2]:
+    #         print res.string;
+    # # print win_volume[0].string;
+    # print balance_volume[0].string;
+    # print fail_volume[0].string;
+    teams_list = teams[1::2]; #对战双方队伍及比分
+    for i in range(0, len(teams_list)):
+        dict = {};
+        single_team = list(teams_list[i].children)[::2];
+        for j in range(0, len(single_team)):
+            dict['zhu_team'] = single_team[0].string;
+            dict['ke_team'] = single_team[2].string;
+            dict['zhu_scores'] = int(single_team[1].string.split(':')[0]);
+            dict['ke_scores'] = int(single_team[1].string.split(':')[1]);
+        dict['bifa_win'] =  float(win_volume[2*i].string.split('%')[0]);
+        dict['bifa_balance'] = float(balance_volume[2*i].string.split('%')[0]);
+        dict['bifa_fail'] = float(fail_volume[2*i].string.split('%')[0]);
+        dict['screenings'] = i + 1;
+        if(dict['zhu_scores'] > dict['ke_scores']):
+            dict['real_result'] = 2;
+        if(dict['zhu_scores'] == dict['ke_scores']):
+            dict['real_result'] = 1;
+        if(dict['zhu_scores'] < dict['ke_scores']):
+            dict['real_result'] = 0;
+        bifa_max = max(dict['bifa_win'], dict['bifa_balance'], dict['bifa_fail']);
+        if(dict['bifa_win'] == bifa_max):
+            dict['bifa_result'] = 2;
+        elif(dict['bifa_balance'] == bifa_max):
+            dict['bifa_result'] = 1;
+        elif(dict['bifa_fail'] == bifa_max):
+            dict['bifa_result'] = 0;
+
+        print dict;
