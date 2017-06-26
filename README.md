@@ -1,6 +1,6 @@
 # 新浪爱彩必发交易数据
 
-## data structure follows as below:
+## Data Structure Follows As Below:
 ```
 { "_id" : ObjectId("5950b9b2ee478021ea0c8ab6"), "bifa_win" : 29.46, "zhu_scores" : 0, "screenings" : 1, "bifa_fail" : 46.19, "bifa_result" : 0, "real_result" : 1, "zhu_team" : "布里斯本狮吼", "date" : "20170203", "ke_scores" : 0, "bifa_balance" : 24.35, "ke_team" : "悉尼FC" }
 ```
@@ -17,6 +17,6 @@
 * bifa_result: 必发预测
 * real_result: 实际赛果，2主胜，1平，0主负
 
-## And so on
+## And So On
 * 欧赔
 * 亚盘
